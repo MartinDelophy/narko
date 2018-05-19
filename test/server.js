@@ -1,11 +1,12 @@
-var narko =require('narko');
+var narko =require('../index');
 
-console.log(narko)
-var obj = new narko
+var obj = new narko(__dirname);
 
-obj.open('./index.narko');
-obj.fillValue({name:123});
-obj.startServer(8000)
-
-
+obj
+.open('./index.narko')
+.fillValue({name:""},function(data){
+        data.name =2
+    return data;
+})
+.startServer(8000);
 
