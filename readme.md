@@ -36,3 +36,9 @@ start server
 ```
 test.startServer() #fill with server port 
 ```
+you can add script on .narko file,just like javascript
+```
+script{
+    console.log("hello narko")
+}
+```

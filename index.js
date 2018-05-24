@@ -1,12 +1,17 @@
 var fs = require('fs');
 var http = require('http');
+var child_process = require('child_process');
 var utils =require('./utils')();
+
 
 class narko {
     constructor(dir){
         this.file_content ="";
         this.filename ="";
         this.dir =dir; 
+        this.port ="8080";
+        this.parse_content="";
+        
         this.staticWatch()
 
     }
@@ -23,9 +28,9 @@ class narko {
     }
     //写入html
     writeHTML(){
-        this.saveConetent();
-        this.file_content ='<!DOCTYPE html>\n'+'<html lang="en">\n'+'<head>\n'+'<meta charset="UTF-8">\n'+'</head>\n'+'<body>\n'+that.file_content+'</body>\n'+'</html>';
-        fs. writeFile(that.dir + '/index.html', that.file_content, {flag: 'w'}, function (err) {
+        var that =this;
+        that.parse_content ='<!DOCTYPE html>\n'+'<html lang="en">\n'+'<head>\n'+'<meta charset="UTF-8">\n'+'</head>\n'+'<body>\n'+that.file_content+'</body>\n'+'</html>';
+        fs. writeFile(that.dir + '/index.html', that.parse_content, {flag: 'w'}, function (err) {
             if(err) {
              console.error(err);
              } else {
@@ -37,7 +42,15 @@ class narko {
     open(filename){
         this.filename =filename;
         try{
-            this.file_content = fs.readFileSync(filename).toString();
+            //todo:fixed
+            var content =fs.readFileSync(filename).toString();
+            this.file_content = content.slice(0,utils.findScript(content));
+            
+            //script
+            var script =utils.matchScript(content);
+            this.file_content +='<script>'+script+'</script>';
+        
+
         }catch(e){
             console.error("illgeal file type")
         }
@@ -66,20 +79,17 @@ class narko {
         }
         return that;
     }
-    //保存内容
-    saveConetent(){
-        this.file_content = fs.readFileSync(this.filename).toString();
-        this.fillValue(this.val); 
-        return this;
-    }
     //启动服务
     startServer(port){
        var that =this
+        that.port =port;
         http.createServer(function(req, res){
             res.writeHead(200, {'Content-type' : 'text/html'});
-            this.file_content ='<!DOCTYPE html>\n'+'<html lang="en">\n'+'<head>\n'+'<meta charset="UTF-8">\n'+'</head>\n'+'<body>\n'+that.file_content+'</body>\n'+'</html>';
-            res.write(this.file_content);
+            this.parse_content ='<!DOCTYPE html>\n'+'<html lang="en">\n'+'<head>\n'+'<meta charset="UTF-8">\n'+'</head>\n'+'<body>\n'+that.file_content+'</body>\n'+'</html>';
+            res.write(this.parse_content);
            }).listen(port);
+          var url = 'http://' + "127.0.0.1:"+that.port;
+           child_process.exec(`${'open'} "${url}"`);
            return that;
     }
 }

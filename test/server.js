@@ -4,7 +4,7 @@ var obj = new narko(__dirname);
 
 obj
 .open('./index.narko')
-.fillValue({name:""},function(data){
+.fillValue({name:"1231"},function(data){
         data.name =2
     return data;
 })
